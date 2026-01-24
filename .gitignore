@@ -4,3 +4,4 @@
 *.pyc
 agents/.adk/
 agents/development_workflow/.adk/session.db
+.aws-sam/

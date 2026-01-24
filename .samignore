@@ -1,0 +1,10 @@
+.venv/
+venv/
+node_modules/
+.aws-sam/
+.git/
+tests/
+handler_test.py
+.env
+*.pyc
+__pycache__/
