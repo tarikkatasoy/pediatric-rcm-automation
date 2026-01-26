@@ -1,6 +1,4 @@
-> [!IMPORTANT]
-> **DEVELOPER NOTE & PROJECT STATUS**
-> This repository is a **Personal Technical Sample** developed by Tarik Atasoy. The AI agents described herein (CEE, MedicalCoder, etc.) are part of a custom multi-agent framework designed for demonstration purposes and do not represent an official product of Pediatric Associates or any existing medical corporation.
+
 
 # Pediatric RCM: High-Confidence Medical Billing Automation
 

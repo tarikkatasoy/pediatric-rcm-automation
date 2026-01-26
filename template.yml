@@ -1,37 +1,66 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
-Description: Pediatric RCM Automation - Multi-Agent Billing Pipeline
+Description: Pediatric RCM Automation - Async Multi-Agent Pipeline
 
 Resources:
+  # 1. Explicitly define the API to break circular logic
+  PediatricRcmApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: Prod
+
+  # 2. DynamoDB Table
+  RcmResultsTable:
+    Type: AWS::Serverless::SimpleTable
+    Properties:
+      PrimaryKey:
+        Name: jobId
+        Type: String
+      TableName: PediatricRcmResults
+
+  # 3. The Multi-Agent Lambda
   PediatricRcmFunction:
     Type: AWS::Serverless::Function
     Properties:
-      # Root directory containing handler.py and requirements.txt
-      CodeUri: ./
-      Handler: handler.lambda_handler 
-      Runtime: python3.13
-      # Architectures: arm64 is cheaper and faster for Python 3.13
+      PackageType: Image
       Architectures:
         - arm64
-      MemorySize: 512
-      # Multi-agent loops can take time; 60s is safer than 30s
-      Timeout: 60
-      Environment:
-        Variables:
-          # Resolved from AWS Secrets Manager created earlier
-          GOOGLE_API_KEY: '{{resolve:secretsmanager:PediatricRcmGeminiKey:SecretString:API_KEY}}'
-      Policies:
-        # Grants the Lambda permission to retrieve the API key at runtime
-        - AWSSecretsManagerGetSecretValuePolicy:
-            SecretArn: !Sub 'arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:PediatricRcmGeminiKey-*'
+      MemorySize: 3008 
+      Timeout: 300      
       Events:
-        BillingApi:
+        ProcessEncounter:
           Type: Api
           Properties:
             Path: /process-encounter
             Method: post
+            RestApiId: !Ref PediatricRcmApi # Explicitly point to our API
+        GetStatus:
+          Type: Api
+          Properties:
+            Path: /status/{jobId}
+            Method: get
+            RestApiId: !Ref PediatricRcmApi # Explicitly point to our API
+      Environment:
+        Variables:
+          GOOGLE_API_KEY: '{{resolve:secretsmanager:PediatricRcmGeminiKey:SecretString:API_KEY}}'
+          RESULTS_TABLE: !Ref RcmResultsTable
+      Policies:
+        - AWSSecretsManagerGetSecretValuePolicy:
+            SecretArn: !Sub 'arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:PediatricRcmGeminiKey-*'
+        - DynamoDBCrudPolicy:
+            TableName: !Ref RcmResultsTable
+        # Hardcoding the ARN pattern for the self-invoke to break the circular dependency on the Role
+        - Statement:
+            - Effect: Allow
+              Action: "lambda:InvokeFunction"
+              Resource: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:PediatricRcmAutomationStack-PediatricRcmFunction-*"
+
+    Metadata:
+      Dockerfile: Dockerfile
+      DockerContext: ./
+      DockerTag: v1
 
 Outputs:
   ApiUrl:
-    Description: "API Gateway endpoint URL"
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/process-encounter/"
+    Description: "Base URL for the RCM API"
+    Value: !Sub "https://${PediatricRcmApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/"

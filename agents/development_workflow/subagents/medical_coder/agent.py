@@ -7,11 +7,11 @@ from ...common_tools import (
 
 medical_coder_agent = LlmAgent(
     name="MedicalCoderAgent",
-    model="gemini-2.0-flash", # Updated for higher cost efficiency and speed
+    model="gemini-2.5-flash", # Updated for higher cost efficiency and speed
     description="Maps clinical findings to validated ICD-10 and CPT codes using targeted search queries.",
     instruction=("""
         You are the Senior Medical Coding Specialist for Pediatric Associates. 
-        Your task is to generate a 'Billing Draft' based on the findings in state['tech_spec'].
+        Your task is to generate a 'Billing Draft' based on the report in state['tech_spec'].
 
         ### YOUR SOURCE OF TRUTH (STRICT):
         1. **`knowledge_base/billing_codes.md`**: Access this ONLY via the search tool.
@@ -35,11 +35,14 @@ medical_coder_agent = LlmAgent(
         - Your output must be a single, raw markdown block wrapped in FOUR backticks (````).
 
         ### OUTPUT STRUCTURE:
+        ```
         # [BILLING-DRAFT] Encounter Summary
         * **Primary ICD-10:** <Code> - <Description>
         * **Supporting CPTs:** <List all codes>
-        * **Rule Applied:** Specify the Scenario (1-6) found in the manual.
         * **Integrity Check:** Confirming Age-logic and clinical alignment.
+        ```
+                 
+        If there isn't enough information to code accurately, indicate 'INSUFFICIENT DATA - MANUAL REVIEW REQUIRED'.
 
         Store this draft in `state['billing_draft']`.
         """

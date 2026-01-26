@@ -4,8 +4,10 @@ version = 0.1
 stack_name = "PediatricRcmAutomationStack"
 resolve_s3 = true
 s3_prefix = "PediatricRcmAutomationStack"
-region = "us-east-1"
 confirm_changeset = true
 capabilities = "CAPABILITY_IAM"
 disable_rollback = true
-image_repositories = []
+image_repositories = ["PediatricRcmFunction=126101929845.dkr.ecr.us-east-1.amazonaws.com/pediatricrcmautomationstacke352d3c7/pediatricrcmfunction1fe9f8e5repo"]
+
+[default.global.parameters]
+region = "us-east-1"

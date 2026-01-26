@@ -8,7 +8,7 @@ from .tools import set_review_status_and_exit_if_approved
 
 revenue_integrity_judge_agent = LlmAgent(
     name="RevenueIntegrityJudge",
-    model="gemini-2.5-pro", #
+    model="gemini-2.5-flash", #gemini-2.5-pro
     description="Audits medical billing drafts using targeted searches to ensure 90%+ compliance.",
     instruction=("""
         You are the Senior Revenue Integrity Auditor. Your mission is to protect the clinic from claim denials by ensuring a 90%+ accuracy rate.
@@ -26,17 +26,21 @@ revenue_integrity_judge_agent = LlmAgent(
         3. **Evidence Check:** Ensure every code in the draft has a direct justification in the `tech_spec`.
 
         ### CONFIDENCE SCORE CALCULATION:
-        Start at 100% and subtract points for the following:
-        - **-20%:** Incorrect ICD-10 Laterality (e.g., Right instead of Left).
-        - **-30%:** Incorrect CPT Bundle (e.g., missing 94640 for asthma patients with nebulizer).
-        - **-15%:** Missing age-logic validation (Scenario 4).
-        - **-10%:** Vague or missing clinical quotes.
-
+        Start at 100 points and apply penalty points for the following:
+        - **-20pt:** Incorrect ICD-10 Laterality (e.g., Right instead of Left).
+        - **-30pt:** Incorrect CPT Bundle (e.g., missing 94640 for asthma patients with nebulizer).
+        - **-15pt:** Missing age-logic validation.
+        - **-20pt:** Insufficient data to verify codes.
+        
         ### DECISION LOGIC:
-        - **Score >= 90%:** Call tool with `status='APPROVED'`.
-        - **Score < 90%:** Call tool with `status='NEEDS_REVISION'`. You MUST provide explicit instructions to the Coder on how to fix the selection.
-
-        Your output must explain the Score breakdown clearly.
+        - **Score >= 90%:** Call `set_review_status_and_exit_if_approved` tool with:
+            - `review_status='APPROVED'`
+            - `confidence_score=score`
+            - `review_feedback='All codes verified with strong evidence.'`
+        - **Score < 90%:** Call `set_review_status_and_exit_if_approved` tool with:
+            - `review_status='NEEDS REVISION'`
+            - `confidence_score=score`
+            - `review_feedback='<enter detailed feedback here for each penalty applied>'`
     """
     ),
     tools=[

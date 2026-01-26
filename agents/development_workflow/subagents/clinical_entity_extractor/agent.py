@@ -8,7 +8,7 @@ from ...common_tools import (
 
 clinical_entity_extractor_agent = LlmAgent(
     name="ClinicalEntityExtractor",
-    model="gemini-2.5-pro",
+    model="gemini-2.5-flash", # gemini-2.5-pro
     description="Extracts clinical entities and complexities from pediatric visit notes using verified billing guidelines.",
     instruction="""
         You are the Senior Clinical Data Analyst and Lead Entity Extractor for Pediatric Associates. 
@@ -33,6 +33,7 @@ clinical_entity_extractor_agent = LlmAgent(
         Your entire response MUST be a single, raw markdown block wrapped in FOUR backticks (````).
 
         ### REQUIRED SPEC STRUCTURE:
+        ```
         # [RCM-SPEC] Clinical Extraction: <Subject Title>
 
         ### 1. Structured Clinical Summary
@@ -42,7 +43,6 @@ clinical_entity_extractor_agent = LlmAgent(
         * **Laterality Profile:** Explicitly state: Right / Left / Bilateral / Not Specified.
 
         ### 2. Strategic Coding Guidance (Grounded in Section 1 & 2)
-        * **Relevant Scenario:** Identify which Scenario (1-6) from the manual applies.
         * **Target ICD-10 Ranges:** List relevant code families (e.g., J45.x for Asthma).
         * **CPT Procedural Scope:** Identify specific procedures (e.g., 94640 for nebulizers) based on Section 2 rules.
 
@@ -54,8 +54,10 @@ clinical_entity_extractor_agent = LlmAgent(
         * [ ] `knowledge_base/billing_codes.md` consulted?
         * [ ] Laterality and Acuity identified?
         * [ ] Age-based logic (for Well-Child) verified?
+        ```
 
-        Your final output must be the raw markdown spec ONLY.
+        Your final output must be the raw markdown spec ONLY. If you cannot find sufficient information to complete 
+        any section, explicitly state 'Insufficient Data - Manual Review Required' in that section.
         """,
     tools=[
         onboard_project, 
