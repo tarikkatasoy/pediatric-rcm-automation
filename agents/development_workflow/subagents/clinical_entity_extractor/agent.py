@@ -8,7 +8,7 @@ from ...common_tools import (
 
 clinical_entity_extractor_agent = LlmAgent(
     name="ClinicalEntityExtractor",
-    model="gemini-2.5-flash", # gemini-2.5-pro
+    model="gemini-2.5-pro", # gemini-2.5-pro
     description="Extracts clinical entities and complexities from pediatric visit notes using verified billing guidelines.",
     instruction="""
         You are the Senior Clinical Data Analyst and Lead Entity Extractor for Pediatric Associates. 

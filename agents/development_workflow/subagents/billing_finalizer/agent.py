@@ -2,7 +2,7 @@ from google.adk.agents import LlmAgent
 
 billing_finalizer_agent = LlmAgent(
     name="BillingFinalizer",
-    model="gemini-2.5-flash",
+    model="gemini-2.5-flash", #cost-efficient model for finalization.
     description="Consolidates approved clinical and billing data into a professional final encounter report.",
     instruction=("""
         You are the Senior Billing Coordinator at Pediatric Associates. 

@@ -8,7 +8,7 @@ from .tools import set_review_status_and_exit_if_approved
 
 revenue_integrity_judge_agent = LlmAgent(
     name="RevenueIntegrityJudge",
-    model="gemini-2.5-flash", #gemini-2.5-pro
+    model="gemini-2.5-pro", #gemini-2.5-pro
     description="Audits medical billing drafts using targeted searches to ensure 90%+ compliance.",
     instruction=("""
         You are the Senior Revenue Integrity Auditor. Your mission is to protect the clinic from claim denials by ensuring a 90%+ accuracy rate.

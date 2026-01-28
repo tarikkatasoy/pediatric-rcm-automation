@@ -7,7 +7,7 @@ from ...common_tools import (
 
 medical_coder_agent = LlmAgent(
     name="MedicalCoderAgent",
-    model="gemini-2.5-flash", # Updated for higher cost efficiency and speed
+    model="gemini-2.5-pro", # Updated for higher cost efficiency and speed
     description="Maps clinical findings to validated ICD-10 and CPT codes using targeted search queries.",
     instruction=("""
         You are the Senior Medical Coding Specialist for Pediatric Associates. 
